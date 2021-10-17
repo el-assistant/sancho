@@ -23,6 +23,8 @@ GitPython = "^3.1.24"
 pytest = "^5.2"
 
 [tool.poetry.scripts]
+build_tree_sitter = "sancho.build_grammar:main"
+fetch_repos = "sancho.etl:clone_starred_python"
 lang_server = "sancho.lang_server:main"
 
 [tool.black]
