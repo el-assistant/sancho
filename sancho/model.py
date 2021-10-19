@@ -47,4 +47,4 @@ class ParsedText(NamedTuple):
     sitter_tree: tree_sitter.Tree = None
     tree: ASTnode = None
     text: bytes = None
-    file: File
+    file: File = None
