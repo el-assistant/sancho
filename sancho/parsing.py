@@ -10,7 +10,9 @@ from sancho.model import ASTnode, ParsedText
 
 
 def _get_python_parser() -> tree_sitter.Parser:
-    py_language = tree_sitter.Language("tree-sitter-languages/languages.so", "python")
+    py_language = tree_sitter.Language(
+        "resources/compiled/python/languages.so", "python"
+    )
     parser = tree_sitter.Parser()
     parser.set_language(py_language)
     return parser
