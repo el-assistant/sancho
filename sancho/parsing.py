@@ -27,7 +27,7 @@ def _parse_python_file(path, enc="utf-8"):
     text = _filepath_to_string(path, enc)
     text = bytes(text, enc)
     tree = parser.parse(text)
-    return ParsedText(sitter_tree=tree, text=text, language="python", path=path)
+    return ParsedText(sitter_tree=tree, text=text, path=path)
 
 
 def _process_node(node: tree_sitter.Node, text: bytes) -> ASTnode:

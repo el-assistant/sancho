@@ -2,8 +2,19 @@
 Entity modelling for the whole project is described here.
 """
 
+
 from sancho.defaults import *
 import tree_sitter
+
+
+class Repo(NamedTuple):
+    full_name: str
+
+
+class File(NamedTuple):
+    repo: Repo
+    full_path: str
+    extension: str
 
 
 class ASTnode(NamedTuple):
@@ -36,5 +47,4 @@ class ParsedText(NamedTuple):
     sitter_tree: tree_sitter.Tree = None
     tree: ASTnode = None
     text: bytes = None
-    path: str = None
-    language: str = None
+    file: File
