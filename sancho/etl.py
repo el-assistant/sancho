@@ -1,20 +1,21 @@
 """ Contains function to download repos from github, and preprocess. ETL resources are located in PROJECT_ROOT/data/
 """
 from loguru import logger
-import dotenv, os
+import dotenv, os, glob
 
 dotenv.load_dotenv()
-token = os.getenv("GH_ACCESS_TOKEN")
-assert token is not None
-
-from github import Github
-from git import Repo
-import git
-
-g = Github(token)
 
 
 def clone_starred_python():
+    from github import Github
+    from git import Repo
+    import git
+
+    token = os.getenv("GH_ACCESS_TOKEN")
+    assert token is not None
+
+    g = Github(token)
+
     for r in g.search_repositories(query="language:python", sort="stars")[:500]:
         logger.info(f"Cloning {r.full_name=}")
         try:
