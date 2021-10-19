@@ -5,8 +5,8 @@ This module exposes:
  - functions:
      get_native_ast
 """
-
 import tree_sitter
+from sancho.model import ASTnode, ParsedText
 
 
 def _get_python_parser() -> tree_sitter.Parser:
