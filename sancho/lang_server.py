@@ -1,4 +1,10 @@
+"""
+Function main is exposed as a command in project.toml.
+"""
+
+
 def main():
+    """Run Language Server as http"""
     from pygls.server import LanguageServer
     from loguru import logger
 
