@@ -15,4 +15,6 @@ def main():
         )
 
     logger.info("Build tree-sitter-python")
-    Language.build_library("languages.so", ["./resources/tree-sitter-python"])
+    Language.build_library(
+        "./resources/compiled/python/languages.so", ["./resources/tree-sitter-python"]
+    )
