@@ -53,7 +53,6 @@ def get_native_ast(path: str) -> ParsedText:
     return parsed._replace(tree=ast_tree, sitter_tree=None)
 
 
-"""
-test it
-"""
-parsed = get_native_ast("parsing.py")
+### Test ###
+def test_get_native_ast():
+    parsed = get_native_ast("parsing.py")
