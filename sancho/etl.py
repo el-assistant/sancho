@@ -24,3 +24,14 @@ def clone_starred_python():
             )
         except git.exc.GitCommandError:
             logger.info(f"Failed to fetch {r.html_url}")
+
+
+def _parse_repo(path):
+    files = glob.glob(path + "/**/*.py", recursive=True)
+    for f in files:
+        _parse_file(f)
+
+
+def test_parse_repo():
+    path = glob.glob("data/repos/*/*/")[1]
+    _parse_repo(path)
