@@ -49,7 +49,7 @@ def _process_node(node: tree_sitter.Node, text: bytes) -> ASTnode:
 
 def get_native_ast(path: str) -> ParsedText:
     parsed = _parse_python_file(path)
-    breakpoint()
+
     assert parsed.sitter_tree and parsed.text, "We need sitter_tree and text!"
     ast_tree = _process_node(parsed.sitter_tree.root_node, parsed.text)
     return parsed._replace(tree=ast_tree, sitter_tree=None)
@@ -57,4 +57,7 @@ def get_native_ast(path: str) -> ParsedText:
 
 ### Test ###
 def test_get_native_ast():
-    parsed = get_native_ast("parsing.py")
+    import os
+
+    print(os.getcwd())
+    parsed = get_native_ast("sancho/parsing.py")

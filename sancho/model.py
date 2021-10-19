@@ -14,7 +14,6 @@ class Repo(NamedTuple):
 class File(NamedTuple):
     repo: Repo
     full_path: str
-    extension: str
 
 
 class ASTnode(NamedTuple):
@@ -47,4 +46,4 @@ class ParsedText(NamedTuple):
     sitter_tree: tree_sitter.Tree = None
     tree: ASTnode = None
     text: bytes = None
-    file: File = None
+    path: str = None
