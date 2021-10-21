@@ -3,18 +3,20 @@
 
 This module exposes:
  - functions:
+     get_python_parser
      get_native_ast
 """
 import tree_sitter
 from sancho.model import ASTnode, ParsedText
 
 
-def _get_python_parser() -> tree_sitter.Parser:
+def get_python_parser() -> tree_sitter.Parser:
     py_language = tree_sitter.Language(
         "resources/compiled/python/languages.so", "python"
     )
     parser = tree_sitter.Parser()
     parser.set_language(py_language)
+
     return parser
 
 
@@ -25,7 +27,7 @@ def _filepath_to_string(path, enc):
 
 
 def _parse_python_file(path, enc="utf-8"):
-    parser = _get_python_parser()
+    parser = get_python_parser()
     text = _filepath_to_string(path, enc)
     text = bytes(text, enc)
     tree = parser.parse(text)
