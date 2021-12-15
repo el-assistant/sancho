@@ -26,12 +26,32 @@ def clone_starred_python():
             logger.info(f"Failed to fetch {r.html_url}")
 
 
-def _parse_repo(path):
-    files = glob.glob(path + "/**/*.py", recursive=True)
-    for f in files:
-        _parse_file(f)
+def parse_repo(path, parent_dir=None):
+
+    from pathlib import Path
+    from sancho.parsing import get_native_ast
+    from sancho.neo4jconnecting import send_ast_to_neo4j
+    from sancho.neo4jschema import DirNode, FileNode
+
+    if parent_dir is None:
+        parent_dir = DirNode(path=None, name=path, project_root=True)
+        parent_dir.save()
+
+    p = Path(path)
+    for f in p.iterdir():
+        if f.is_dir():
+            new_dir = DirNode(
+                path=parent_dir,
+                name=f.name,
+            )
+            new_dir.save()
+            parse_repo(p.joinpath(f.name))
+        elif f.suffix == ".py":
+            ast_root = send_ast_to_neo4j(get_native_ast(f))
+            new_file = FileNode(path=parent_dir, name=f.name, ast_root=ast_root)
+            new_file.save()
 
 
 def test_parse_repo():
     path = glob.glob("data/repos/*/*/")[1]
-    _parse_repo(path)
+    parse_repo(path)

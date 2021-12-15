@@ -8,7 +8,10 @@ import parsing
 
 @singledispatch
 def send_ast_to_neo4j(tree: parsing.ASTnode) -> Node:
-    """Recursively traverses tree creating respective nodes in DB"""
+    """Recursively traverses tree creating respective nodes in DB
+
+    Returns AST root node
+    """
     this = Node(kind=tree.kind, start=tree.start, end=tree.end, content=tree.content)
     this.save()
     previous_son = None
