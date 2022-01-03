@@ -37,3 +37,12 @@ import more_itertools as mit
 from typing import NamedTuple
 from typing import Tuple, Callable
 import typing as tp
+
+
+def get_env(env_name: str) -> str:
+    import os
+
+    if env_name in os.environ:
+        return os.getenv(env_name)
+    else:
+        raise EnvironmentError(f"Environment variable {env_name} is not defined.")
