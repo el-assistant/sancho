@@ -26,6 +26,7 @@ def _filepath_to_string(path, enc):
     return s
 
 
+# TODO: use Path as hint
 def _parse_python_file(path, enc="utf-8"):
     parser = get_python_parser()
     text = _filepath_to_string(path, enc)
