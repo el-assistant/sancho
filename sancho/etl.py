@@ -2,10 +2,15 @@
 """
 from loguru import logger
 import dotenv, os, glob
+from pathlib import Path
 
 dotenv.load_dotenv()
 
 import sancho.model as model
+
+REPOS_DIR = "data/repos/"
+AST_CSV_DIR = "data/ast_csv/"
+FILES_CSV_DIR = "data/files_csv/"
 
 
 def clone_starred_python():
@@ -31,16 +36,118 @@ def clone_starred_python():
 
 def convert_parsed_text_to_csv(parsed: model.ParsedText) -> model.ASTnodesTable:
     assert parsed.tree and parsed.text
-    raise NotImplementedError  # TODO: implement it
+
+    path = parsed.path
+    id_counter = 0
+
+    def traverse(node: model.ASTnode):
+        """Traverse breadth first, from right to left, yielding nodes in row format.
+
+        local_id is created following the traversal order.
+        """
+        nonlocal id_counter
+
+        parent_id = id_counter
+        next_id = None
+        for n in reversed(node.children):
+            id_counter += 1
+            yield model.ASTnodeRowFormat(
+                full_path=path,
+                local_id=id_counter,
+                kind=n.kind,
+                parent_id=parent_id,
+                next_id=next_id,
+                content=n.content,
+            )
+            next_id = id_counter
+
+        for n in reversed(node.children):
+            traverse(n)
+
+    root = parsed.tree
+    rows = []
+    rows.append(
+        model.ASTnodeRowFormat(
+            full_path=path,
+            local_id=id_counter,
+            kind=root.kind,
+        )
+    )
+    rows.extend(traverse(root))
+
+    return model.ASTnodesTable(full_path=path, rows=rows)
 
 
-def get_parsed_as_csv(path: str) -> model.ASTnodesTable:
+def write_csv(path: Path, fieldnames: list[str], rows: list[dict]):
+    import csv
+
+    with open(path, "w", newline="") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+        writer.writeheader()
+        for row in rows:
+            writer.writerow(row._asdict())
+
+
+def parse_as_csv(path: Path):
+    """Writes to csv file the ASTnodes preparing for Neo4j LOAD CSV
+
+    path is relative and it is used both for source and target files with the
+    respective prefixes.
+
+    """
     from sancho.parsing import get_native_ast
 
-    return convert_parsed_text_to_csv(get_native_ast(path))
+    native_ast = get_native_ast(Path(REPOS_DIR, path))
+    nodestable = convert_parsed_text_to_csv(native_ast)
+
+    fieldnames = model.ASTnodeRowFormat._fields
+    csvpath = Path(AST_CSV_DIR, nodestable.full_path).with_suffix(".csv")
+    write_csv(csvpath, fieldnames, nodestable.rows)
 
 
-def load_parsed(parsed: model.ASTnodesTable):
+def test_parse_as_csv():
+    parse_as_csv(Path("ansible/ansible/setup.py"))
+
+
+def parse_repo_ast_to_csv(repo: model.Repo):
+    repopath = Path(REPOS_DIR, repo.path)
+    for p in repopath.rglob(".py"):
+        parse_as_csv(p.relative_to(REPOS_DIR))
+
+def test_parse_repo_ast_to_csv():
+    parse_repo_ast_to_csv(Path("ansible/ansible/setup.py"))
+
+def make_files_table(repo: model.Repo) -> model.FilesTable:
+
+    rootpath = Path(repo.path)
+
+    def traverse(path: Path) -> model.FileRowFormat:
+        for p in path.iter_dir():
+            yield model.FileRowFormat(
+                full_path=str(p),
+                is_dir=p.is_dir(),
+                parent_path=str(p.parent),
+            )
+            if p.is_dir():
+                yield traverse(p)
+
+    files_table = []
+    files_table.append(model.FileRowFormat(full_path=str(rootpath), is_dir=True))
+    files_table.extend(traverse(rootpath))
+    return model.FilesTable(repo, files_table)
+
+
+def parse_repo_dir_to_csv(repo: model.Repo):
+    csvpath = Path(FILES_CSV_DIR, repo.path).with_suffix(".csv")
+    fields = model.FileRowFormat._fields
+    rows = make_files_table(repo).rows
+    write_csv(csvpath, fields, rows)
+
+def test_parse_repo_dir_to_csv():
+    parse_repo_dir_to_csv(model.Repo(path="ansible/ansible/")
+
+def load_parsed(repo: model.Repo):
     raise NotImplementedError  # TODO: implement it
 
 
@@ -52,16 +159,14 @@ def connect_files_and_AST(table: model.FilesTable):
     raise NotImplementedError  # TODO: implement it
 
 
+def is_code_file(f: model.FileRowFormat) -> bool:
+    from pathlib import Path
+
+    p = Path(f.full_path)
+    return p.suffix == ".py"
+
+
 def load_repo(repo: model.Repo):
-    def make_files_table(repo: model.Repo) -> model.FilesTable:
-        raise NotImplementedError  # TODO: implement it
-
-    def is_code_file(f: model.FileRowFormat) -> bool:
-        from pathlib import Path
-
-        p = Path(f.full_path)
-        return p.suffix == ".py"
-
     filestable = make_files_table(repo)
 
     load_files(filestable)
