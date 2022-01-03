@@ -1,9 +1,14 @@
 """
 This modules implements the interface with Neo4j DB
 """
-from defaults import *
-from neo4jschema import ASTnode as Node
-import parsing
+from sancho.defaults import *
+from sancho.neo4jschema import ASTnode as Node
+import sancho.parsing as parsing
+import sancho.model as model
+
+# TODO: Send AST to neo4j through csv files.
+# Step1: parsing.ASTnode -> csv file
+# Step2: load csv file into neo4j
 
 
 @singledispatch
@@ -30,3 +35,9 @@ def send_ast_to_neo4j(tree: parsing.ASTnode) -> Node:
 @send_ast_to_neo4j.register
 def _(parsed: parsing.ParsedText):
     return send_ast_to_neo4j(parsed.tree)
+
+
+@send_ast_to_neo4j.register
+def _(table: model.ASTnodesTable):
+    # TODO: implement this
+    raise NotImplementedError
