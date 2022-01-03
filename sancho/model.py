@@ -47,3 +47,34 @@ class ParsedText(NamedTuple):
     tree: ASTnode = None
     text: bytes = None
     path: str = None
+
+
+class ASTnodeRowFormat(NamedTuple):
+    """These are generated from ASTnode information.
+
+    This format is suitable for ingesting data through Neo4j LOAD CSV command.
+
+    """
+
+    full_path: str
+    local_id: int
+    parent_id: int = None  # root parent_id is None
+    next_id: int = None
+    content: str = None
+
+
+class ASTnodesTable(NamedTuple):
+    full_path: str
+    rows: list(ASTnodeRowFormat)
+
+
+class FileRowFormat(NamedTuple):
+    full_path: str  # unique id
+    is_dir: bool = False
+    parent_path: str = None  # repo root has parent_path=None
+    # respective root ASTnode is matched through full_path
+
+
+class FilesTable(NamedTuple):
+    repo: Repo
+    rows: list(FileRowFormat)
