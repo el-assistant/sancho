@@ -8,7 +8,8 @@ import tree_sitter
 
 
 class Repo(NamedTuple):
-    full_name: str
+    full_name: str = None
+    path: str
 
 
 class File(NamedTuple):
@@ -58,6 +59,7 @@ class ASTnodeRowFormat(NamedTuple):
 
     full_path: str
     local_id: int
+    kind: str
     parent_id: int = None  # root parent_id is None
     next_id: int = None
     content: str = None
@@ -65,7 +67,7 @@ class ASTnodeRowFormat(NamedTuple):
 
 class ASTnodesTable(NamedTuple):
     full_path: str
-    rows: list(ASTnodeRowFormat)
+    rows: list[ASTnodeRowFormat]
 
 
 class FileRowFormat(NamedTuple):
@@ -77,4 +79,4 @@ class FileRowFormat(NamedTuple):
 
 class FilesTable(NamedTuple):
     repo: Repo
-    rows: list(FileRowFormat)
+    rows: list[FileRowFormat]
