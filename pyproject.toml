@@ -26,6 +26,7 @@ pytest = "^5.2"
 build_tree_sitter = "sancho.build_grammar:main"
 fetch_repos = "sancho.etl:clone_starred_python"
 lang_server = "sancho.lang_server:main"
+migrate = "sancho.neo4jschema:migrate"
 
 [tool.black]
 

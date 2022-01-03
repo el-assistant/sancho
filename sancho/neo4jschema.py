@@ -11,10 +11,13 @@ import os
 
 import neomodel as nm
 
-from dotenv import load_dotenv
+import dotenv
 
-load_dotenv()
-nm.config.DATABASE_URL = os.getenv("NEO4J_BOLT_URL")
+dotenv.load_dotenv()
+
+from sancho.defaults import get_env
+
+nm.config.DATABASE_URL = get_env("NEO4J_BOLT_URL")
 
 
 class ASTnode(nm.StructuredNode):
@@ -50,4 +53,8 @@ class DirNode(nm.StructuredNode):
     project_root = nm.BooleanProperty()
 
 
-nm.install_all_labels()
+def migrate():
+    nm.install_all_labels()
+
+
+# TODO: This schema will be useless if we load the data through LOAD CSV command
