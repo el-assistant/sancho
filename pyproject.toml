@@ -28,6 +28,9 @@ fetch_repos = "sancho.etl:clone_starred_python"
 lang_server = "sancho.lang_server:main"
 migrate = "sancho.neo4jschema:migrate"
 
+[tool.pytest.ini_options]
+addopts = "--ignore=sancho/data --capture=no"
+
 [tool.black]
 
 [build-system]
