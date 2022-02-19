@@ -20,10 +20,12 @@ GitPython = "^3.1.24"
 
 
 pugsql = "^0.2.3"
+psycopg2 = "^2.9.3"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 pylint = "^2.10.2"
+jedi = "^0.18.1"
 
 [tool.poetry.scripts]
 build_tree_sitter = "sancho.build_grammar:main"
