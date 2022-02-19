@@ -1,10 +1,17 @@
 """
 This modules implements the interface with Neo4j DB
 """
+from py2neo import Graph
+import dotenv
+
+dotenv.load_dotenv()
+
 from sancho.defaults import *
 from sancho.neo4jschema import ASTnode as Node
 import sancho.parsing as parsing
 import sancho.model as model
+
+graph = Graph(get_env("NEO4J_BOLT_URL"))
 
 
 @singledispatch

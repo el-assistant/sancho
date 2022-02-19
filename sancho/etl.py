@@ -3,6 +3,7 @@
 from loguru import logger
 import dotenv, os, glob
 from pathlib import Path
+from sancho.defaults import *
 
 dotenv.load_dotenv()
 
@@ -37,7 +38,7 @@ def clone_starred_python():
 def convert_parsed_text_to_csv(parsed: model.ParsedText) -> model.ASTnodesTable:
     assert parsed.tree and parsed.text
 
-    path = parsed.path
+    path = Path(parsed.path).relative_to(REPOS_DIR)
     id_counter = 0
 
     def traverse(node: model.ASTnode):
@@ -62,7 +63,7 @@ def convert_parsed_text_to_csv(parsed: model.ParsedText) -> model.ASTnodesTable:
             next_id = id_counter
 
         for n in reversed(node.children):
-            traverse(n)
+            yield traverse(n)
 
     root = parsed.tree
     rows = []
@@ -75,12 +76,15 @@ def convert_parsed_text_to_csv(parsed: model.ParsedText) -> model.ASTnodesTable:
     )
     rows.extend(traverse(root))
 
+    rows = collapse(rows, base_type=model.ASTnodeRowFormat)
+
     return model.ASTnodesTable(full_path=path, rows=rows)
 
 
 def write_csv(path: Path, fieldnames: list[str], rows: list[dict]):
     import csv
 
+    path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w", newline="") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
@@ -102,7 +106,7 @@ def parse_as_csv(path: Path):
     nodestable = convert_parsed_text_to_csv(native_ast)
 
     fieldnames = model.ASTnodeRowFormat._fields
-    csvpath = Path(AST_CSV_DIR, nodestable.full_path).with_suffix(".csv")
+    csvpath = Path(AST_CSV_DIR, path).with_suffix(".csv")
     write_csv(csvpath, fieldnames, nodestable.rows)
 
 
@@ -115,8 +119,10 @@ def parse_repo_ast_to_csv(repo: model.Repo):
     for p in repopath.rglob(".py"):
         parse_as_csv(p.relative_to(REPOS_DIR))
 
+
 def test_parse_repo_ast_to_csv():
     parse_repo_ast_to_csv(Path("ansible/ansible/setup.py"))
+
 
 def make_files_table(repo: model.Repo) -> model.FilesTable:
 
@@ -144,8 +150,20 @@ def parse_repo_dir_to_csv(repo: model.Repo):
     rows = make_files_table(repo).rows
     write_csv(csvpath, fields, rows)
 
+
 def test_parse_repo_dir_to_csv():
-    parse_repo_dir_to_csv(model.Repo(path="ansible/ansible/")
+    parse_repo_dir_to_csv(model.Repo(path="ansible/ansible/"))
+
+
+def load_single_parsed(path: Path):
+    from sancho.neo4jconnecting import graph
+
+    graph.run(f"LOAD CSV FROM 'file:///{path.absolute()}' AS line RETURN count(line)")
+
+
+def test_load_single_parsed():
+    load_single_parsed(Path(AST_CSV_DIR, "ansible/ansible/setup.csv"))
+
 
 def load_parsed(repo: model.Repo):
     raise NotImplementedError  # TODO: implement it
