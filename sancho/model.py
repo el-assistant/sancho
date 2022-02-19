@@ -8,8 +8,8 @@ import tree_sitter
 
 
 class Repo(NamedTuple):
-    full_name: str = None
     path: str
+    full_name: str = None
 
 
 class File(NamedTuple):
