@@ -52,9 +52,6 @@ class ParsedText(NamedTuple):
 
 class ASTnodeRowFormat(NamedTuple):
     """These are generated from ASTnode information.
-
-    This format is suitable for ingesting data through Neo4j LOAD CSV command.
-
     """
 
     full_path: str

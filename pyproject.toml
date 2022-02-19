@@ -18,8 +18,7 @@ loguru = "^0.5.3"
 PyGithub = "^1.55"
 GitPython = "^3.1.24"
 
-py2neo = "^2021.2.3"
-neomodel = "^4.0.5"
+
 pugsql = "^0.2.3"
 
 [tool.poetry.dev-dependencies]
@@ -30,7 +29,7 @@ pylint = "^2.10.2"
 build_tree_sitter = "sancho.build_grammar:main"
 fetch_repos = "sancho.etl:clone_starred_python"
 lang_server = "sancho.lang_server:main"
-migrate = "sancho.neo4jschema:migrate"
+
 
 [tool.pytest.ini_options]
 addopts = "--ignore=sancho/data --capture=no"

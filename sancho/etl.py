@@ -94,7 +94,7 @@ def write_csv(path: Path, fieldnames: list[str], rows: list[dict]):
 
 
 def parse_as_csv(path: Path):
-    """Writes to csv file the ASTnodes preparing for Neo4j LOAD CSV
+    """Writes to csv file the ASTnodes
 
     path is relative and it is used both for source and target files with the
     respective prefixes.
@@ -154,15 +154,6 @@ def parse_repo_dir_to_csv(repo: model.Repo):
 def test_parse_repo_dir_to_csv():
     parse_repo_dir_to_csv(model.Repo(path="ansible/ansible/"))
 
-
-def load_single_parsed(path: Path):
-    from sancho.neo4jconnecting import graph
-
-    graph.run(f"LOAD CSV FROM 'file:///{path.absolute()}' AS line RETURN count(line)")
-
-
-def test_load_single_parsed():
-    load_single_parsed(Path(AST_CSV_DIR, "ansible/ansible/setup.csv"))
 
 
 def load_parsed(repo: model.Repo):
