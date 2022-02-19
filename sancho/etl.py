@@ -1,8 +1,12 @@
 """ Contains function to download repos from github, and preprocess. ETL resources are located in PROJECT_ROOT/data/
 """
-from loguru import logger
-import dotenv, os, glob
+import glob
+import os
 from pathlib import Path
+
+import dotenv
+from loguru import logger
+
 from sancho.defaults import *
 
 dotenv.load_dotenv()
@@ -34,56 +38,11 @@ def clone_starred_python():
         except git.exc.GitCommandError:
             logger.info(f"Failed to fetch {r.html_url}")
 
-
-def convert_parsed_text_to_csv(parsed: model.ParsedText) -> model.ASTnodesTable:
-    assert parsed.tree and parsed.text
-
-    path = Path(parsed.path).relative_to(REPOS_DIR)
-    id_counter = 0
-
-    def traverse(node: model.ASTnode):
-        """Traverse breadth first, from right to left, yielding nodes in row format.
-
-        local_id is created following the traversal order.
-        """
-        nonlocal id_counter
-
-        parent_id = id_counter
-        next_id = None
-        for n in reversed(node.children):
-            id_counter += 1
-            yield model.ASTnodeRowFormat(
-                full_path=path,
-                local_id=id_counter,
-                kind=n.kind,
-                parent_id=parent_id,
-                next_id=next_id,
-                content=n.content,
-            )
-            next_id = id_counter
-
-        for n in reversed(node.children):
-            yield traverse(n)
-
-    root = parsed.tree
-    rows = []
-    rows.append(
-        model.ASTnodeRowFormat(
-            full_path=path,
-            local_id=id_counter,
-            kind=root.kind,
-        )
-    )
-    rows.extend(traverse(root))
-
-    rows = collapse(rows, base_type=model.ASTnodeRowFormat)
-
-    return model.ASTnodesTable(full_path=path, rows=rows)
-
-
 def write_csv(path: Path, fieldnames: list[str], rows: list[dict]):
     import csv
 
+    from git import Repo
+    from github import Github
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w", newline="") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -110,18 +69,19 @@ def parse_as_csv(path: Path):
     write_csv(csvpath, fieldnames, nodestable.rows)
 
 
-def test_parse_as_csv():
-    parse_as_csv(Path("ansible/ansible/setup.py"))
-
-
 def parse_repo_ast_to_csv(repo: model.Repo):
     repopath = Path(REPOS_DIR, repo.path)
     for p in repopath.rglob(".py"):
         parse_as_csv(p.relative_to(REPOS_DIR))
 
+def test_parse_as_csv():
+    parse_as_csv(Path("ansible/ansible/setup.py"))
+
+
 
 def test_parse_repo_ast_to_csv():
     parse_repo_ast_to_csv(Path("ansible/ansible/setup.py"))
+
 
 
 def make_files_table(repo: model.Repo) -> model.FilesTable:
