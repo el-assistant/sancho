@@ -38,49 +38,8 @@ def clone_starred_python():
         except git.exc.GitCommandError:
             logger.info(f"Failed to fetch {r.html_url}")
 
-def write_csv(path: Path, fieldnames: list[str], rows: list[dict]):
-    import csv
-
-    from git import Repo
-    from github import Github
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", newline="") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-
-        writer.writeheader()
-        for row in rows:
-            writer.writerow(row._asdict())
 
 
-def parse_as_csv(path: Path):
-    """Writes to csv file the ASTnodes
-
-    path is relative and it is used both for source and target files with the
-    respective prefixes.
-
-    """
-    from sancho.parsing import get_native_ast
-
-    native_ast = get_native_ast(Path(REPOS_DIR, path))
-    nodestable = convert_parsed_text_to_csv(native_ast)
-
-    fieldnames = model.ASTnodeRowFormat._fields
-    csvpath = Path(AST_CSV_DIR, path).with_suffix(".csv")
-    write_csv(csvpath, fieldnames, nodestable.rows)
-
-
-def parse_repo_ast_to_csv(repo: model.Repo):
-    repopath = Path(REPOS_DIR, repo.path)
-    for p in repopath.rglob(".py"):
-        parse_as_csv(p.relative_to(REPOS_DIR))
-
-def test_parse_as_csv():
-    parse_as_csv(Path("ansible/ansible/setup.py"))
-
-
-
-def test_parse_repo_ast_to_csv():
-    parse_repo_ast_to_csv(Path("ansible/ansible/setup.py"))
 
 
 
@@ -104,15 +63,6 @@ def make_files_table(repo: model.Repo) -> model.FilesTable:
     return model.FilesTable(repo, files_table)
 
 
-def parse_repo_dir_to_csv(repo: model.Repo):
-    csvpath = Path(FILES_CSV_DIR, repo.path).with_suffix(".csv")
-    fields = model.FileRowFormat._fields
-    rows = make_files_table(repo).rows
-    write_csv(csvpath, fields, rows)
-
-
-def test_parse_repo_dir_to_csv():
-    parse_repo_dir_to_csv(model.Repo(path="ansible/ansible/"))
 
 
 
