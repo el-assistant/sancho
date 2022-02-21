@@ -11,7 +11,6 @@ python-dotenv = "^0.19.0"
 
 tree-sitter = "^0.19.0"
 pygls = "^0.11.2"
-black = "^21.8b0"
 more-itertools = "^8.8.0"
 loguru = "^0.5.3"
 
@@ -26,6 +25,7 @@ psycopg2 = "^2.9.3"
 pytest = "^5.2"
 pylint = "^2.10.2"
 jedi = "^0.18.1"
+black = "^21.8b0"
 
 [tool.poetry.scripts]
 build_tree_sitter = "sancho.build_grammar:main"
