@@ -23,3 +23,13 @@ def load_into_db(nodes: ASTnodesTable, repo: Repo):
             next_id=node.next_id,
             content=node.content,
         )
+
+
+def test_load_into_db():
+    from sancho.parsing import get_native_ast
+    from sancho.etl import convert_parsed_text_to_nodes_table
+
+    repo = Repo(path="/ansible/ansible")
+    nodes = get_native_ast(repo.path)
+    nodes = convert_parsed_text_to_nodes_table(nodes)
+    load_into_db(nodes, repo)
