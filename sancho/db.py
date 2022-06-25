@@ -11,6 +11,6 @@ assert db_connection_string is not None
 
 queries = pugsql.module("sancho/sql/")
 queries.connect(db_connection_string)
-
+#TODO: drop pugsql and sqlalchemy
 connection = sqlite3.connect("data/db.sqlite")
 connection.row_factory = sqlite3.Row

@@ -3,7 +3,8 @@
 from sancho.defaults import *
 from sancho.model import ASTnodesTable, FilesTable, Repo
 from sancho.db import queries, connection
-
+# TODO: rewrite queries using was sqlite
+# TODO: save create tables scripts in this repo
 
 def load_into_db(nodes: ASTnodesTable, repo: Repo):
 
